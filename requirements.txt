@@ -1,0 +1,39 @@
+click
+dominate
+Flask
+Flask-Bootstrap
+Flask-SQLAlchemy
+Flask-WTF
+inflect
+itsdangerous
+Jinja2
+MarkupSafe
+pymongo
+pytz
+sqlacodegen
+SQLAlchemy
+visitor
+Werkzeug
+WTForms
+
+numpy
+opencv-python
+pandas
+matplotlib
+Pillow
+plotly
+python-dateutil
+requests
+scikit-image
+scikit-learn
+scipy
+sk-video
+sklearn
+vidgear
+psutil
+#  skimage
+
+# IMPORTS CONDICIONAIS - REVISAR ANTES DE INSTALAR
+#opencv-contrib-python #comment for Windows uncomment for Linux
+#RPi.GPIO
+PyQt5  #Comment for Linux, Uncomment for Windows - On Linux this needs to be installed with the std package manager

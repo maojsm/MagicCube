@@ -1,10 +1,12 @@
 import numpy as np
 
+
 class Quaternion:
     """Quaternion Rotation:
 
     Class to aid in representing 3D rotations via quaternions.
     """
+
     @classmethod
     def from_v_theta(cls, v, theta):
         """
@@ -110,7 +112,7 @@ class Quaternion:
         return np.dot(points, M.T)
 
 
-def project_points(points, q, view, vertical=[0, 1, 0]):
+def project_points(points, q, view, vertical=None):
     """Project points using a quaternion q and a view v
 
     Parameters
@@ -130,6 +132,8 @@ def project_points(points, q, view, vertical=[0, 1, 0]):
     proj: array_like
         array of projected points: same shape as points.
     """
+    if vertical is None:
+        vertical = [0, 1, 0]
     points = np.asarray(points)
     view = np.asarray(view)
 
@@ -157,7 +161,7 @@ def project_points(points, q, view, vertical=[0, 1, 0]):
     dpoint_view = np.dot(dpoint, view).reshape(dpoint.shape[:-1] + (1,))
     dproj = -dpoint * v2 / dpoint_view
 
-    trans =  list(range(1, dproj.ndim)) + [0]
+    trans = list(range(1, dproj.ndim)) + [0]
     return np.array([np.dot(dproj, xdir),
                      np.dot(dproj, ydir),
                      -np.dot(dpoint, zdir)]).transpose(trans)

@@ -1,4 +1,4 @@
-#----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # Matplotlib Rubik's cube simulator
 # Written by Jake Vanderplas
 # Adapted from cube code written by David Hogg
@@ -43,6 +43,7 @@ After any rotation, this can be used to quickly restore the cube to
 canonical position.
 """
 
+
 class Cube:
     """Magic Cube Representation"""
     # define some attribues
@@ -74,9 +75,9 @@ class Cube:
     # Define rotation angles and axes for the six sides of the cube
     x, y, z = np.eye(3)
     rots = [Quaternion.from_v_theta(np.eye(3)[0], theta)
-    for theta in (np.pi / 2, -np.pi / 2)]
+            for theta in (np.pi / 2, -np.pi / 2)]
     rots += [Quaternion.from_v_theta(np.eye(3)[1], theta)
-    for theta in (np.pi / 2, -np.pi / 2, np.pi, 2 * np.pi)]
+             for theta in (np.pi / 2, -np.pi / 2, np.pi, 2 * np.pi)]
 
     # define face movements
     facesdict = dict(F=z, B=-z,
@@ -178,7 +179,7 @@ class Cube:
                 self._move_list[-1] = (f, ntot, layer)
         else:
             self._move_list.append((f, n, layer))
-        
+
         v = self.facesdict[f]
         r = Quaternion.from_v_theta(v, n * np.pi / 2)
         M = r.as_rotation_matrix()
@@ -195,9 +196,29 @@ class Cube:
                                                 M.T)
 
     def draw_interactive(self):
-        fig = plt.figure(figsize=(5, 5))
+        fig = plt.figure(figsize=(10, 5))
         fig.add_axes(InteractiveCube(self))
         return fig
+
+    @property
+    def stickers(self):
+        return self._stickers
+
+    @property
+    def face_centroids(self):
+        return self._face_centroids
+
+    @property
+    def faces(self):
+        return self._faces
+
+    @property
+    def sticker_centroids(self):
+        return self._sticker_centroids
+
+    @property
+    def colors(self):
+        return self._colors
 
 
 class InteractiveCube(plt.Axes):
@@ -256,7 +277,7 @@ class InteractiveCube(plt.Axes):
         self._shift = False  # shift key pressed
         self._digit_flags = np.zeros(10, dtype=bool)  # digits 0-9 pressed
 
-        self._current_rot = self._start_rot  #current rotation state
+        self._current_rot = self._start_rot  # current rotation state
         self._face_polys = None
         self._sticker_polys = None
 
@@ -278,10 +299,13 @@ class InteractiveCube(plt.Axes):
 
         # write some instructions
         self.figure.text(0.05, 0.05,
-                         "Mouse/arrow keys adjust view\n"
-                         "U/D/L/R/B/F keys turn faces\n"
-                         "(hold shift for counter-clockwise)",
+                         "As teclas do Mouse/Seta ajustam a visualização\n"
+                         "As teclas U/D/L/R/B/F viram faces\n"
+                         "(mantenha a tecla Shift pressionada para girar no sentido anti-horário)",
                          size=10)
+
+        # Titulo JSM
+        self.figure.text(0.05, 0.90, "JSM Engenharia", size=15)
 
     def _initialize_widgets(self):
         self._ax_reset = self.figure.add_axes([0.75, 0.05, 0.2, 0.075])
@@ -292,17 +316,22 @@ class InteractiveCube(plt.Axes):
         self._btn_solve = widgets.Button(self._ax_solve, 'Solve Cube')
         self._btn_solve.on_clicked(self._solve_cube)
 
+        self._ax_jsm = self.figure.add_axes([0.1, 0.7, 0.2, 0.1])
+        self._btn_jsm = widgets.Button(self._ax_jsm, 'JSM')
+        self._btn_jsm.on_clicked(self._jsm_nada)
+
+
     def _project(self, pts):
         return project_points(pts, self._current_rot, self._view, [0, 1, 0])
 
     def _draw_cube(self):
-        stickers = self._project(self.cube._stickers)[:, :, :2]
-        faces = self._project(self.cube._faces)[:, :, :2]
-        face_centroids = self._project(self.cube._face_centroids[:, :3])
-        sticker_centroids = self._project(self.cube._sticker_centroids[:, :3])
+        stickers = self._project(self.cube.stickers)[:, :, :2]
+        faces = self._project(self.cube.faces)[:, :, :2]
+        face_centroids = self._project(self.cube.face_centroids[:, :3])
+        sticker_centroids = self._project(self.cube.sticker_centroids[:, :3])
 
         plastic_color = self.cube.plastic_color
-        colors = np.asarray(self.cube.face_colors)[self.cube._colors]
+        colors = np.asarray(self.cube.face_colors)[self.cube.colors]
         face_zorders = -face_centroids[:, 2]
         sticker_zorders = -sticker_centroids[:, 2]
 
@@ -356,6 +385,10 @@ class InteractiveCube(plt.Axes):
             self.rotate_face(face, -n, layer, steps=3)
         self.cube._move_list = []
 
+    def _jsm_nada(self, *args):
+        ...   # teste de bota q nao faz nada
+
+
     def _key_press(self, event):
         """Handler for key press events"""
         if event.key == 'shift':
@@ -393,7 +426,7 @@ class InteractiveCube(plt.Axes):
                     self.rotate_face(event.key.upper(), direction, layer=d)
             else:
                 self.rotate_face(event.key.upper(), direction)
-                
+
         self._draw_cube()
 
     def _key_release(self, event):
@@ -448,8 +481,10 @@ class InteractiveCube(plt.Axes):
 
                 self.figure.canvas.draw()
 
+
 if __name__ == '__main__':
     import sys
+
     try:
         N = int(sys.argv[1])
     except:
@@ -458,14 +493,14 @@ if __name__ == '__main__':
     c = Cube(N)
 
     # do a 3-corner swap
-    #c.rotate_face('R')
-    #c.rotate_face('D')
-    #c.rotate_face('R', -1)
-    #c.rotate_face('U', -1)
-    #c.rotate_face('R')
-    #c.rotate_face('D', -1)
-    #c.rotate_face('R', -1)
-    #c.rotate_face('U')
+    # c.rotate_face('R')
+    # c.rotate_face('D')
+    # c.rotate_face('R', -1)
+    # c.rotate_face('U', -1)
+    # c.rotate_face('R')
+    # c.rotate_face('D', -1)
+    # c.rotate_face('R', -1)
+    # c.rotate_face('U')
 
     c.draw_interactive()
 

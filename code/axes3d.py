@@ -1,6 +1,8 @@
-import numpy as np
+# from projection import Quaternion, project_points
+import Quaternion
 import matplotlib.pyplot as plt
-from projection import Quaternion, project_points
+import numpy as np
+import project_points
 
 
 class PolyView3D(plt.Axes):
